@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="lib/underscore/underscore.js"></script>
+    <script src="lib/jquery/jquery.js"></script>
+    <script src="llRedBlackTree.js"></script> 
+<script>
+  //var data = [41, 38, 31, 12, 19, 8];
+  var data = _.range(50);
+  var tree = new LLRedBlackTree();
+
+  _.each(data, function(key) {
+    tree.insert(key, true);
+  });
+
+  console.log(tree);
+
+  var showTree = function(node, $element) {
+    var $node = $('<div class="node">' + node.key + '</div>');
+    var $children = $('<div></div>');
+    var $left = $('<div style="display: inline-block;"></div>');
+    if (node.children[0] !== RedBlackNode.Guard) {
+      showTree(node.children[0], $left);
+    }
+    $children.append($left);
+    var $right = $('<div style="display: inline-block;"></div>');
+    if (node.children[1] !== RedBlackNode.Guard) { 
+      showTree(node.children[1], $right);
+    }
+    $children.append($right);
+    $node.append($children);
+    $element.append($node);
+  }
+
+  $(document).ready(function(){
+    showTree(tree.root, $('#tree'));
+  });
+</script> 
+  </head>
+  <body>
+    <div id="tree"></div>
+  </body>
+</html>
