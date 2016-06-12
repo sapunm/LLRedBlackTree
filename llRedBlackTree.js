@@ -1,32 +1,25 @@
 
-var RedBlackNode = function(key, value) {
+var RedBlackNode = function(key, value, isRed) {
     this.key = key;
     this.value = value;
     this.children = [RedBlackNode.Guard, RedBlackNode.Guard];  // children[0] -> left child, children[1] -> right child
-    this.color = RedBlackNode.Color.Red;
+    this.isRed = isRed === undefined ? true : isRed;
 };
 
-RedBlackNode.Color = {
-    Red: true,
-    Black: false
-};
-
-RedBlackNode.Guard = new RedBlackNode();
-RedBlackNode.Guard.color = RedBlackNode.Color.Black;
+RedBlackNode.Guard = new RedBlackNode(undefined, undefined, false);
 
 RedBlackNode.prototype.colorFlip = function() {
-    this.color = !this.color;
-    this.children[0].color = !this.children[0].color;
-    this.children[1].color = !this.children[1].color;
+    this.isRed = !this.isRed;
+    this.children[0].isRed = !this.children[0].isRed;
+    this.children[1].isRed = !this.children[1].isRed;
 }
 
-RedBlackNode.prototype.rotate = function(direction) // direction === 0 -> rotate left, direction === 1 -> rotate right
-{
+RedBlackNode.prototype.rotate = function(direction) {// direction === 0 -> rotate left, direction === 1 -> rotate right
    var node = this.children[1-direction];
    this.children[1-direction] = node.children[direction];
    node.children[direction] = this;
-   node.color = this.color;
-   this.color = RedBlackNode.Color.Red;
+   node.isRed = this.isRed;
+   this.isRed = true;
    return node;
 }
 
@@ -35,7 +28,7 @@ var LLRedBlackTree = function() {
 };
 
 LLRedBlackTree.prototype.find = function(key) {
-    for (var node = this.root; node != RedBlackNode.Guard; node = node.children[key < node.key ? 0 : 1]) {
+    for (var node = this.root; node !== RedBlackNode.Guard; node = node.children[key < node.key ? 0 : 1]) {
         if (key === node.key)
             return node.value;
     }
@@ -45,12 +38,12 @@ LLRedBlackTree.prototype.find = function(key) {
 LLRedBlackTree.prototype.insert = function(key, value, node) {
     if (node === undefined) {
         this.root = this.insert(key, value, this.root);
-        this.root.color = RedBlackNode.Color.Black;        
+        this.root.isRed = false;
     } else {       
         if (node === RedBlackNode.Guard)
-            return new RedBlackNode(key, value);
+            return new RedBlackNode(key, value, true);
 
-        if (node.children[0].color && node.children[1].color)
+        if (node.children[0].isRed && node.children[1].isRed)
             node.colorFlip();
 
         if (key === node.key)
@@ -60,10 +53,10 @@ LLRedBlackTree.prototype.insert = function(key, value, node) {
             node.children[child] = this.insert(key, value, node.children[child]);
         }
 
-        if (!node.children[0].color && node.children[1].color)
+        if (!node.children[0].isRed && node.children[1].isRed)
             node = node.rotate(0);
 
-        if (node.children[0].color && node.children[0].children[0].color)
+        if (node.children[0].isRed && node.children[0].children[0].isRed)
             node = node.rotate(1);
 
         return node;
