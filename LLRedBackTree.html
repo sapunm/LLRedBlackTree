@@ -2,39 +2,67 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="lib/node_modules/vis/dist/vis.min.css">
     <script src="lib/underscore/underscore.js"></script>
     <script src="lib/jquery/jquery.js"></script>
+    <script src="lib/node_modules/vis/dist/vis.min.js"></script>
+    <script src="lib/jquery/jquery.js"></script>
     <script src="llRedBlackTree.js"></script> 
+    <style type="text/css">
+      html { height: 100%; border: 0; margin: 0; padding: 0; background: linear-gradient(to left, #403B4A , #E7E9BB); }
+      body, #tree { height: 100%; border: 0; margin: 0; padding: 0;}
+    </style>
 <script>
-  //var data = [41, 38, 31, 12, 19, 8];
-  var data = _.range(50);
+  //var elements = [41, 38, 31, 12, 19, 8];
+  var elements = _.shuffle(_.range(73));
   var tree = new LLRedBlackTree();
 
-  _.each(data, function(key) {
+  _.each(elements, function(key) {
     tree.insert(key, true);
   });
 
   console.log(tree);
 
-  var showTree = function(node, $element) {
-    var $node = $('<div class="node">' + node.key + '</div>');
-    var $children = $('<div></div>');
-    var $left = $('<div style="display: inline-block;"></div>');
+  var data = {
+      nodes: [],
+      edges: []
+  };
+  var fillTreeData = function(node) {
+    if (node.key !== undefined) {
+      data.nodes.push({id: node.key, label: node.key, color: node.isRed ? 'red' : 'black'});
+    }
     if (node.children[0] !== RedBlackNode.Guard) {
-      showTree(node.children[0], $left);
+      data.edges.push({from: node.key,to: node.children[0].key, color: node.children[0].isRed ? 'red' : 'black'});
+      fillTreeData(node.children[0]);
     }
-    $children.append($left);
-    var $right = $('<div style="display: inline-block;"></div>');
     if (node.children[1] !== RedBlackNode.Guard) { 
-      showTree(node.children[1], $right);
+      data.edges.push({from: node.key,to: node.children[1].key, color: node.children[1].isRed ? 'red' : 'black'});
+      fillTreeData(node.children[1]);
     }
-    $children.append($right);
-    $node.append($children);
-    $element.append($node);
   }
+  fillTreeData(tree.root);
+  
+  var options = {
+      layout: {
+          hierarchical: {
+            edgeMinimization: false,
+            direction: "UD",
+            sortMethod: "directed"
+          },
+      },
+      interaction: {dragNodes :false},
+      physics: { enabled: false },
+      nodes: {
+        font: {
+          size: 40,
+          color: "lightgrey"
+        }
+      }
+  };
 
   $(document).ready(function(){
-    showTree(tree.root, $('#tree'));
+    var container = document.getElementById('tree');
+    var network = new vis.Network(container, data, options);
   });
 </script> 
   </head>

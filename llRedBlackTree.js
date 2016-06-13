@@ -41,10 +41,10 @@ LLRedBlackTree.prototype.insert = function(key, value, node) {
         this.root.isRed = false;
     } else {       
         if (node === RedBlackNode.Guard)
-            return new RedBlackNode(key, value, true);
+            return new RedBlackNode(key, value);
 
-        if (node.children[0].isRed && node.children[1].isRed)
-            node.colorFlip();
+        // if (node.children[0].isRed && node.children[1].isRed)
+        //     node.colorFlip();
 
         if (key === node.key)
             node.value = value;
@@ -58,6 +58,9 @@ LLRedBlackTree.prototype.insert = function(key, value, node) {
 
         if (node.children[0].isRed && node.children[0].children[0].isRed)
             node = node.rotate(1);
+
+        if (node.children[0].isRed && node.children[1].isRed)
+            node.colorFlip();
 
         return node;
     }
