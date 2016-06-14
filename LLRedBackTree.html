@@ -14,12 +14,14 @@
     </style>
 <script>
   //var elements = [41, 38, 31, 12, 19, 8];
-  var elements = _.shuffle(_.range(73));
+  //var elements = _.shuffle(_.range(73));
+  var elements = _.range(73);
   var tree = new LLRedBlackTree();
 
   _.each(elements, function(key) {
     tree.insert(key, true);
   });
+  tree.remove(31);
 
   console.log(tree);
 
