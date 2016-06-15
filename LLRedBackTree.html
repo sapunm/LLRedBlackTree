@@ -19,56 +19,85 @@
     <script>
       //var elements = [41, 38, 31, 12, 19, 8];
       //var elements = _.shuffle(_.range(73));
-      var elements = _.range(73);
-      var tree = new LLRedBlackTree();
+      var RBTreeVisModel = Backbone.Model.extend({
+        initialize: function() {
+          this.tree = new LLRedBlackTree();
+        },
 
-      _.each(elements, function(key) {
-        tree.insert(key, true);
+        insertRange: function(keyValuesArray){
+          _.each(keyValuesArray, function(keyValuePair) {
+            this.tree.insert(keyValuePair.key, keyValuePair.value);
+          }, this);          
+          this.trigger('change');
+        },
+
+        insert: function(key, value){
+          this.tree.insert(key, value);
+          this.trigger('change');
+        },
+
+        remove: function(key){
+          this.tree.remove(key);
+          this.trigger('change');
+        }
+
       });
-      tree.remove(31);
 
-      console.log(tree);
-
-      var data = {
-          nodes: [],
-          edges: []
-      };
-      var fillTreeData = function(node) {
-        if (node.key !== undefined) {
-          data.nodes.push({id: node.key, label: node.key, color: node.isRed ? 'red' : 'black'});
-        }
-        if (node.children[0] !== RedBlackNode.Guard) {
-          data.edges.push({from: node.key,to: node.children[0].key, color: node.children[0].isRed ? 'red' : 'black'});
-          fillTreeData(node.children[0]);
-        }
-        if (node.children[1] !== RedBlackNode.Guard) { 
-          data.edges.push({from: node.key,to: node.children[1].key, color: node.children[1].isRed ? 'red' : 'black'});
-          fillTreeData(node.children[1]);
-        }
-      }
-      fillTreeData(tree.root);
-      
-      var options = {
-          layout: {
-              hierarchical: {
-                edgeMinimization: false,
-                direction: "UD",
-                sortMethod: "directed"
-              },
-          },
-          interaction: {dragNodes :false},
-          physics: { enabled: false },
-          nodes: {
-            font: {
-              size: 40,
-              color: "lightgrey"
+      var RBTreeVisView = Backbone.View.extend({
+        initialize: function() {
+          this.listenTo(this.model, 'change', this.render);
+          this.network = new vis.Network(this.el, [], {
+            layout: {
+                hierarchical: {
+                  edgeMinimization: false,
+                  direction: "UD",
+                  sortMethod: "directed"
+                },
+            },
+            interaction: {dragNodes :false},
+            physics: { enabled: false },
+            nodes: {
+              font: {
+                size: 40,
+                color: "lightgrey"
+              }
             }
-          }
-      };
+          });
+          this.render();
+        },
 
-      $(document).ready(function(){
-        var container = document.getElementById('tree');
-        var network = new vis.Network(container, data, options);
+        fillVisData: function(treeNode, data) {
+          if (treeNode.key !== undefined) {
+            data.nodes.push({id: treeNode.key, label: treeNode.key, color: treeNode.isRed ? 'red' : 'black'});
+          }
+          if (treeNode.children[0] !== RedBlackNode.Guard) {
+            data.edges.push({from: treeNode.key,to: treeNode.children[0].key, color: treeNode.children[0].isRed ? 'red' : 'black'});
+            this.fillVisData(treeNode.children[0], data);
+          }
+          if (treeNode.children[1] !== RedBlackNode.Guard) { 
+            data.edges.push({from: treeNode.key,to: treeNode.children[1].key, color: treeNode.children[1].isRed ? 'red' : 'black'});
+            this.fillVisData(treeNode.children[1], data);
+          }
+        },
+
+        render: function(){
+          var data = {
+              nodes: [],
+              edges: []
+          };
+          this.fillVisData(this.model.tree.root, data);
+          this.network.setData(data);
+        }
+      });
+
+      var model = new RBTreeVisModel();
+      var keyValuesArray = _.map(_.range(73), function(key) { return {key: key, value: true}; });
+
+      model.insertRange(keyValuesArray);
+      model.remove(31);
+
+      $(function(){        
+        var view = new RBTreeVisView({model: model, el: '#tree'});
       });
     </script>
   </head>
