@@ -2,71 +2,75 @@
 <html>
   <head>
     <meta charset="utf-8">
+
     <link rel="stylesheet" href="lib/node_modules/vis/dist/vis.min.css">
-    <script src="lib/underscore/underscore.js"></script>
-    <script src="lib/jquery/jquery.js"></script>
-    <script src="lib/node_modules/vis/dist/vis.min.js"></script>
-    <script src="lib/jquery/jquery.js"></script>
-    <script src="llRedBlackTree.js"></script> 
     <style type="text/css">
       html { height: 100%; border: 0; margin: 0; padding: 0; background: linear-gradient(to left, #403B4A , #E7E9BB); }
       body, #tree { height: 100%; border: 0; margin: 0; padding: 0;}
-    </style>
-<script>
-  //var elements = [41, 38, 31, 12, 19, 8];
-  //var elements = _.shuffle(_.range(73));
-  var elements = _.range(73);
-  var tree = new LLRedBlackTree();
+    </style> 
 
-  _.each(elements, function(key) {
-    tree.insert(key, true);
-  });
-  tree.remove(31);
+    <script src="lib/jquery/dist/jquery.js"></script>
+    <script src="lib/underscore/underscore.js"></script>
+    <script src="lib/backbone/backbone.js"></script>
+    <script src="lib/backbone.stickit/backbone.stickit.js"></script>
+    <script src="lib/vis/dist/vis.min.js"></script>
+    <script src="llRedBlackTree.js"></script> 
 
-  console.log(tree);
+    <script>
+      //var elements = [41, 38, 31, 12, 19, 8];
+      //var elements = _.shuffle(_.range(73));
+      var elements = _.range(73);
+      var tree = new LLRedBlackTree();
 
-  var data = {
-      nodes: [],
-      edges: []
-  };
-  var fillTreeData = function(node) {
-    if (node.key !== undefined) {
-      data.nodes.push({id: node.key, label: node.key, color: node.isRed ? 'red' : 'black'});
-    }
-    if (node.children[0] !== RedBlackNode.Guard) {
-      data.edges.push({from: node.key,to: node.children[0].key, color: node.children[0].isRed ? 'red' : 'black'});
-      fillTreeData(node.children[0]);
-    }
-    if (node.children[1] !== RedBlackNode.Guard) { 
-      data.edges.push({from: node.key,to: node.children[1].key, color: node.children[1].isRed ? 'red' : 'black'});
-      fillTreeData(node.children[1]);
-    }
-  }
-  fillTreeData(tree.root);
-  
-  var options = {
-      layout: {
-          hierarchical: {
-            edgeMinimization: false,
-            direction: "UD",
-            sortMethod: "directed"
-          },
-      },
-      interaction: {dragNodes :false},
-      physics: { enabled: false },
-      nodes: {
-        font: {
-          size: 40,
-          color: "lightgrey"
+      _.each(elements, function(key) {
+        tree.insert(key, true);
+      });
+      tree.remove(31);
+
+      console.log(tree);
+
+      var data = {
+          nodes: [],
+          edges: []
+      };
+      var fillTreeData = function(node) {
+        if (node.key !== undefined) {
+          data.nodes.push({id: node.key, label: node.key, color: node.isRed ? 'red' : 'black'});
+        }
+        if (node.children[0] !== RedBlackNode.Guard) {
+          data.edges.push({from: node.key,to: node.children[0].key, color: node.children[0].isRed ? 'red' : 'black'});
+          fillTreeData(node.children[0]);
+        }
+        if (node.children[1] !== RedBlackNode.Guard) { 
+          data.edges.push({from: node.key,to: node.children[1].key, color: node.children[1].isRed ? 'red' : 'black'});
+          fillTreeData(node.children[1]);
         }
       }
-  };
+      fillTreeData(tree.root);
+      
+      var options = {
+          layout: {
+              hierarchical: {
+                edgeMinimization: false,
+                direction: "UD",
+                sortMethod: "directed"
+              },
+          },
+          interaction: {dragNodes :false},
+          physics: { enabled: false },
+          nodes: {
+            font: {
+              size: 40,
+              color: "lightgrey"
+            }
+          }
+      };
 
-  $(document).ready(function(){
-    var container = document.getElementById('tree');
-    var network = new vis.Network(container, data, options);
-  });
-</script> 
+      $(document).ready(function(){
+        var container = document.getElementById('tree');
+        var network = new vis.Network(container, data, options);
+      });
+    </script>
   </head>
   <body>
     <div id="tree"></div>
